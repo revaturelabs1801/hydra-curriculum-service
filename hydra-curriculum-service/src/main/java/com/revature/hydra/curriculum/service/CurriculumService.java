@@ -1,11 +1,14 @@
 package com.revature.hydra.curriculum.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.revature.hydra.curriculum.bean.Curriculum;
+import com.revature.hydra.curriculum.pojos.BamUser;
 import com.revature.hydra.curriculum.repository.CurriculumRepository;
 
 @Service("curriculumService")
@@ -14,15 +17,25 @@ public class CurriculumService {
 	@Autowired
 	CurriculumRepository curriculumRepository;
 	
-	public List<Curriculum> getAllCurriculum(){
+	@SuppressWarnings("rawtypes")
+	public Map<String, List> getAllCurriculum(List<BamUser> users){
 		List<Curriculum> curriculumList =  curriculumRepository.findAll();
 		//obfuscate password
 		for(Curriculum element : curriculumList){
-			//element.getCurriculumCreator().setPwd("");
-			//if(element.getCurriculumModifier() != null)
-			//	element.getCurriculumModifier().setPwd("");
+			for(BamUser user: users) {
+				if(element.getCurriculumCreator() == user.getUserId()) {
+					user.setPwd("");
+				}
+				if(element.getCurriculumModifier() != null && 
+				   element.getCurriculumModifier() == user.getUserId()) {
+					user.setPwd("");
+				}
+			}
 		}
-		return curriculumList;
+		Map<String, List> curriculumUsers = new HashMap<>();
+		curriculumUsers.put("curriculumList", curriculumList);
+		curriculumUsers.put("users", users);
+		return curriculumUsers;
 	}
 	
 	public Curriculum getCuricullumById(Integer id){
