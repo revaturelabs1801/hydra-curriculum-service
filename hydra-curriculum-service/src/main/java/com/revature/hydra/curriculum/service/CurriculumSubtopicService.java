@@ -22,5 +22,10 @@ public class CurriculumSubtopicService {
 	public void saveCurriculumSubtopic(CurriculumSubtopic cs){
 		curriculumSubtopic.save(cs);
 	}
+
+	public List<CurriculumSubtopic> getCurriculumSubtopicsForDay(Curriculum c, int day) {
+		List<CurriculumSubtopic> curriculumSubtopics = curriculumSubtopic.findByCurriculumAndCurriculumSubtopicDay(c, day);
+		return curriculumSubtopics;
+	}
 	
 }
