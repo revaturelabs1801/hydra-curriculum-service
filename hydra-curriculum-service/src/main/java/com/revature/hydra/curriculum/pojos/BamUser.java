@@ -18,7 +18,7 @@ public class BamUser {
 	private Role role; // Role 3 is for admins
 
 	// Batch ID should only be used for associates. DO NOT use this
-	private int batch; // field to assign a batch to a trainer. It should be
+	private Integer batch; // field to assign a batch to a trainer. It should be
 							// null for
 							// trainers and admins. A trainer is assigned in the
 							// Batches table.
@@ -38,7 +38,7 @@ public class BamUser {
 		super();
 	}
 
-	public BamUser(String fName, String mName, String lName, String email, String pwd, Role role, int batch,
+	public BamUser(String fName, String mName, String lName, String email, String pwd, Role role, Integer batch,
 			String phone, String phone2, String skype, String pwd2) {//NOSONAR
 		super();
 		this.fName = fName;
@@ -55,7 +55,7 @@ public class BamUser {
 	}
 
 	public BamUser(int userId, String fName, String mName, String lName, String email, String pwd, Role role,
-			int batch, String phone, String phone2, String skype, String pwd2) {//NOSONAR
+			Integer batch, String phone, String phone2, String skype, String pwd2) {//NOSONAR
 		super();
 		this.fName = fName;
 		this.mName = mName;
@@ -72,7 +72,7 @@ public class BamUser {
 	}
 
 	public BamUser(int userId, String fName, String mName, String lName, String email, String pwd, Role role,
-			int batch, String phone, String phone2, String skype, String pwd2, Integer AssignForceID) {//NOSONAR
+			Integer batch, String phone, String phone2, String skype, String pwd2, Integer AssignForceID) {//NOSONAR
 		super();
 		this.userId = userId;
 		this.fName = fName;
@@ -145,11 +145,11 @@ public class BamUser {
 		this.role = role;
 	}
 
-	public int getBatch() {
+	public Integer getBatch() {
 		return batch;
 	}
 
-	public void setBatch(int batch) {
+	public void setBatch(Integer batch) {
 		this.batch = batch;
 	}
 
