@@ -1,13 +1,9 @@
 package com.revature.hydra.curriculum.controller;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +19,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -42,7 +36,6 @@ import com.revature.hydra.curriculum.pojos.DaysDTO;
 import com.revature.hydra.curriculum.pojos.NoContentException;
 import com.revature.hydra.curriculum.pojos.Subtopic;
 import com.revature.hydra.curriculum.pojos.SubtopicName;
-import com.revature.hydra.curriculum.pojos.WeeksDTO;
 import com.revature.hydra.curriculum.service.CurriculumService;
 import com.revature.hydra.curriculum.service.CurriculumSubtopicService;
 
@@ -105,15 +98,12 @@ public class CurriculumController {
 	public List<Curriculum> getAllCurriculum() throws NoContentException {
 		ParameterizedTypeReference<List<BamUser>> ptr = new ParameterizedTypeReference<List<BamUser>>() {
 		};
-		ResponseEntity<List<BamUser>> userResponseEntity = this.restTemplate.exchange(
-				"http://ec2-18-219-133-200.us-east-2.compute.amazonaws.com:9000/api/v2/Users/all", HttpMethod.GET, null,
-				ptr);
+		ResponseEntity<List<BamUser>> userResponseEntity = this.restTemplate.exchange("http://hydra-user-service/all",
+				HttpMethod.GET, null, ptr);
 		Map<String, List> lists = curriculumService.getAllCurriculum(userResponseEntity.getBody());
-		// /*for (BamUser user : (List<BamUser>) lists.get("users"))
-		// this.restTemplate.postForEntity("http://hydra-user-service/api/v2/Users/Update",
-		// HttpMethod.POST,
-		// BamUser.class, user);*/
-		// return (List<Curriculum>) lists.get("curriculumList");
+//		for (BamUser user : (List<BamUser>) lists.get("users"))
+//			this.restTemplate.postForEntity("http://hydra-user-service/api/v2/users/update", HttpMethod.POST,
+//					BamUser.class, user);
 		if (lists.get("curriculumList") != null && !lists.get("curriculumList").isEmpty()) {
 			return lists.get("curriculumList");
 		} else {
@@ -123,8 +113,9 @@ public class CurriculumController {
 	}
 
 	/**
-	 * @author Carter Taylor (1712-Steve), Olayinka Ewumi (1712-Steve), Stephen Negron (1801-Trevin), Rafael Sanchez (1801-Trevin)
-	 *         getCurriculumById: method to get a Curriculum by its Id
+	 * @author Carter Taylor (1712-Steve), Olayinka Ewumi (1712-Steve), Stephen
+	 *         Negron (1801-Trevin), Rafael Sanchez (1801-Trevin) getCurriculumById:
+	 *         method to get a Curriculum by its Id
 	 * @return Curriculum, HttpStatus.OK if successful HttpStatus.NO_CONTENT if id
 	 *         doesn't match, HttpStatus.BAD_REQUEST if missing parameters
 	 * @throws BadRequestException
@@ -136,18 +127,18 @@ public class CurriculumController {
 		Curriculum result = new Curriculum();
 		try {
 			result = curriculumService.getCuricullumById(cId);
-			BamUser creator = restTemplate.getForObject(
-					"http://hydra-user-service/api/v2/users/byid/" + result.getCurriculumCreator(), BamUser.class);
-			BamUser modifier = restTemplate.getForObject(
-					"http://hydra-user-service/api/v2/users/byid/" + result.getCurriculumModifier(), BamUser.class);
-			creator.setPwd("");
-			this.restTemplate.postForEntity("http://hydra-user-service/api/v2/users/update", HttpMethod.POST,
-					BamUser.class, creator);
-			if (modifier != null) {
-				modifier.setPwd("");
-				this.restTemplate.postForEntity("http://hydra-user-service/api/v2/users/update", HttpMethod.POST,
-						BamUser.class, modifier);
-			}
+//			BamUser creator = restTemplate.getForObject(
+//					"http://hydra-user-service/api/v2/users/byid/" + result.getCurriculumCreator(), BamUser.class);
+//			BamUser modifier = restTemplate.getForObject(
+//					"http://hydra-user-service/api/v2/users/byid/" + result.getCurriculumModifier(), BamUser.class);
+//			creator.setPwd("");
+//			this.restTemplate.postForEntity("http://hydra-user-service/api/v2/users/update", HttpMethod.POST,
+//					BamUser.class, creator);
+//			if (modifier != null) {
+//				modifier.setPwd("");
+//				this.restTemplate.postForEntity("http://hydra-user-service/api/v2/users/update", HttpMethod.POST,
+//						BamUser.class, modifier);
+//			}
 		} catch (NullPointerException e) {
 			throw new BadRequestException("Request Failed");
 		}
@@ -160,7 +151,8 @@ public class CurriculumController {
 	}
 
 	/**
-	 * @author Carter Taylor (1712-Steve), Olayinka Ewumi (1712-Steve), Stephen Negron (1801-Trevin), Rafael Sanchez (1801-Trevin)
+	 * @author Carter Taylor (1712-Steve), Olayinka Ewumi (1712-Steve), Stephen
+	 *         Negron (1801-Trevin), Rafael Sanchez (1801-Trevin)
 	 * @param PathVariable:
 	 *            int cId holds curriculumId getAllCurriculumSchedules: method to
 	 *            retrieve list of curriculum subtopics given a curriculumId
@@ -192,8 +184,8 @@ public class CurriculumController {
 	}
 
 	/**
-	 * @author Carter Taylor (1712-Steve), Olayinka Ewumi (1712-Steve), Stephen Negron (1801-Trevin), Rafael Sanchez (1801-Trevin)
-	 *  getTopicPool:
+	 * @author Carter Taylor (1712-Steve), Olayinka Ewumi (1712-Steve), Stephen
+	 *         Negron (1801-Trevin), Rafael Sanchez (1801-Trevin) getTopicPool:
 	 *         method to get list of topics
 	 * @return List<SubtopicName>, HttpStatus.OK if successful,
 	 *         HttpStatus.NO_CONTENT if list is empty
@@ -214,9 +206,9 @@ public class CurriculumController {
 	}
 
 	/**
-	 * @author Carter Taylor (1712-Steve), Olayinka Ewumi (1712-Steve), Stephen Negron (1801-Trevin), Rafael Sanchez (1801-Trevin)
-	 *         getSubtopicPool: method to get list of subtopics with associated
-	 *         batch and status
+	 * @author Carter Taylor (1712-Steve), Olayinka Ewumi (1712-Steve), Stephen
+	 *         Negron (1801-Trevin), Rafael Sanchez (1801-Trevin) getSubtopicPool:
+	 *         method to get list of subtopics with associated batch and status
 	 * @return List<Subtopic>, HttpStatus.OK if successful, HttpStatus.NO_CONTENT if
 	 *         list is empty
 	 * @throws NoContentException
@@ -236,7 +228,8 @@ public class CurriculumController {
 	}
 
 	/**
-	 * @author Carter Taylor (1712-Steve), Stephen Negron (1801-Trevin), Rafael Sanchez (1801-Trevin)
+	 * @author Carter Taylor (1712-Steve), Stephen Negron (1801-Trevin), Rafael
+	 *         Sanchez (1801-Trevin)
 	 * @param json
 	 *            String that contains curriculum subtopic object addSchedule:
 	 *            method that takes a curriculum subtopic (schedule) as input from
@@ -297,7 +290,8 @@ public class CurriculumController {
 	}
 
 	/**
-	 * @author Jordan DeLong Carter Taylor (1712-Steve), Stephen Negron (1801-Trevin), Rafael Sanchez (1801-Trevin)
+	 * @author Jordan DeLong Carter Taylor (1712-Steve), Stephen Negron
+	 *         (1801-Trevin), Rafael Sanchez (1801-Trevin)
 	 * @param PathVariable:
 	 *            int cId that holds curriculumId markCurricullumAsMaster: method
 	 *            that marks selected curriculum as master version (identified by id
@@ -343,8 +337,26 @@ public class CurriculumController {
 		curriculumService.save(c);
 	}
 
+	@SuppressWarnings("unchecked")
+	@GetMapping("batches")
+	public List<Batch> getBatches() throws NoContentException {
+		// ParameterizedTypeReference<List<Batch>> ptr = new
+		// ParameterizedTypeReference<List<Batch>>() {
+		// };
+		List<Batch> result = restTemplate.postForObject("http://hydra-batch-service/getBatchAll", null,
+				(Class<? extends List<Batch>>) List.class);
+		// List<Batch> result = (List<Batch>) this.restTemplate.exchange(
+		// "http://hydra-batch-service/getBatchAll", HttpMethod.POST, null, ptr);
+		if (result != null) {
+			return result;
+		} else {
+			throw new NoContentException("No Subtopics were found");
+		}
+	}
+
 	/**
-	 * @author Carter Taylor (1712-Steve), Stephen Negron (1801-Trevin), Rafael Sanchez (1801-Trevin)
+	 * @author Carter Taylor (1712-Steve), Stephen Negron (1801-Trevin), Rafael
+	 *         Sanchez (1801-Trevin)
 	 * @param PathVariable
 	 *            int id batch id given as path variable syncBatch: sync batch by
 	 *            getting list of curriculum subtopics related to that batch type
@@ -356,7 +368,7 @@ public class CurriculumController {
 	@ResponseStatus(value = HttpStatus.RESET_CONTENT)
 	@GetMapping("syncbatch/{id}")
 	public void syncBatch(@PathVariable int id) throws NoContentException {
-		Batch currBatch = restTemplate.getForObject("http://hydra-batch-service/api/v2/batches/byid/" + id,
+		Batch currBatch = restTemplate.getForObject("http://hydra-batch-service/getBatchById/" + id,
 				Batch.class);
 		String batchType = currBatch.getType().getName();
 		List<Curriculum> curriculumList = curriculumService.findAllCurriculumByNameAndIsMaster(batchType, 1);
@@ -418,7 +430,8 @@ public class CurriculumController {
 		 */
 
 		List<Subtopic> persistedSubtopics = (List<Subtopic>) this.restTemplate
-				.postForEntity("http://hydra-topic-service/api/v2/subtopicService/mapCurriculumSubtopicsToSubtopics/" + currBatch.getId(), HttpMethod.POST, Map.class, map);
+				.postForEntity("http://hydra-topic-service/api/v2/subtopicService/mapCurriculumSubtopicsToSubtopics/"
+						+ currBatch.getId(), HttpMethod.POST, Map.class, map);
 		// List<Subtopic> persistedSubtopics =
 		// curriculumSubtopicService.mapCurriculumSubtopicsToSubtopics(map, currBatch);
 
@@ -428,7 +441,8 @@ public class CurriculumController {
 	}
 
 	/**
-	 * @author Carter Taylor, James Holzer (1712-Steve), Stephen Negron (1801-Trevin), Rafael Sanchez (1801-Trevin)
+	 * @author Carter Taylor, James Holzer (1712-Steve), Stephen Negron
+	 *         (1801-Trevin), Rafael Sanchez (1801-Trevin)
 	 * @param RequestBody
 	 *            Curriculum version deleteCurriculumVersion: Deletes a curriculum
 	 *            version along with it's related CurriculumSubtopics
