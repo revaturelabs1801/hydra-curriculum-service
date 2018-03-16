@@ -8,7 +8,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,25 +35,19 @@ public class CurriculumServiceTests {
 	}
 	
 	@Test
-	public void getAllCurriculum_returns() {
+	public void getAllCurriculum_returnsUsersArgument() {
 		// SETUP
-		BamUser user1 = spy(BamUser.class);
-		BamUser user2 = spy(BamUser.class);
-		user1 = new BamUser(1, null, null, null, null, null, null, 1801, null, null, null, null);
-		user2 = new BamUser(2, null, null, null, null, null, null, 1801, null, null, null, null);
+		BamUser user1 = new BamUser(1, null, null, null, null, null, null, null, null, null, null, null);
+		BamUser user2 = new BamUser(2, null, null, null, null, null, null, null, null, null, null, null);
 		List<BamUser> argumentList = new ArrayList<>();
 		argumentList.add(user1);
 		argumentList.add(user2);
-		
-		Curriculum curriculum = new Curriculum(1, "name 1", 1, 1, null, null, 1, 1);
 
-		when(mockCurriculumRepository.findById(1)).thenReturn(curriculum);
-		
 		// EXECUTE
-		Curriculum returnCurriculum = curriculumService.getCuricullumById(1);
+		Map<String, List> curriculumUsers = curriculumService.getAllCurriculum(argumentList);
 		
 		// TEST
-		assertEquals(returnCurriculum.getId().intValue(), 1);
+		assertEquals(curriculumUsers.get("users").size(), argumentList.size());
 	}
 	
 	@Test

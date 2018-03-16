@@ -83,7 +83,6 @@ public class CurriculumService {
 	}
 
 	public List<Curriculum> findAllCurriculumByName(String name) {
-
 		return curriculumRepository.findByCurriculumName(name);
 	}
 
