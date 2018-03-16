@@ -169,11 +169,10 @@ public class CurriculumController {
 
 		try {
 			c = curriculumService.getCuricullumById(cId);
+			c.setId(cId);
 		} catch (NullPointerException e) {
 			throw new BadRequestException("Request Failed");
 		}
-
-		c.setId(cId);
 
 		List<CurriculumSubtopic> result = curriculumSubtopicService.getCurriculumSubtopicForCurriculum(c);
 		if (result != null && !result.isEmpty()) {

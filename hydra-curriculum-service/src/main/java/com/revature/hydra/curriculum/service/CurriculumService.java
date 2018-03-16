@@ -27,17 +27,17 @@ public class CurriculumService {
 	public Map<String, List> getAllCurriculum(List<BamUser> users){
 		List<Curriculum> curriculumList =  curriculumRepository.findAll();
 		//obfuscate password
-		for(Curriculum element : curriculumList){
-			for(BamUser user: users) {
-				if(element.getCurriculumCreator() == user.getUserId()) {
-					user.setPwd("");
-				}
-				if(element.getCurriculumModifier() != null && 
-				   element.getCurriculumModifier() == user.getUserId()) {
-					user.setPwd("");
-				}
-			}
-		}
+//		for(Curriculum element : curriculumList){
+//			for(BamUser user: users) {
+//				if(element.getCurriculumCreator() == user.getUserId()) {
+//					user.setPwd("");
+//				}
+//				if(element.getCurriculumModifier() != null && 
+//				   element.getCurriculumModifier() == user.getUserId()) {
+//					user.setPwd("");
+//				}
+//			}
+//		}
 		Map<String, List> curriculumUsers = new HashMap<>();
 		curriculumUsers.put("curriculumList", curriculumList);
 		curriculumUsers.put("users", users);
