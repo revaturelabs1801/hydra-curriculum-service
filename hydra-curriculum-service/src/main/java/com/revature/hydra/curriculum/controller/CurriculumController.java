@@ -101,9 +101,6 @@ public class CurriculumController {
 		ResponseEntity<List<BamUser>> userResponseEntity = this.restTemplate.exchange("http://hydra-user-service/all",
 				HttpMethod.GET, null, ptr);
 		Map<String, List> lists = curriculumService.getAllCurriculum(userResponseEntity.getBody());
-//		for (BamUser user : (List<BamUser>) lists.get("users"))
-//			this.restTemplate.postForEntity("http://hydra-user-service/api/v2/users/update", HttpMethod.POST,
-//					BamUser.class, user);
 		if (lists.get("curriculumList") != null && !lists.get("curriculumList").isEmpty()) {
 			return lists.get("curriculumList");
 		} else {
@@ -127,18 +124,6 @@ public class CurriculumController {
 		Curriculum result = new Curriculum();
 		try {
 			result = curriculumService.getCuricullumById(cId);
-//			BamUser creator = restTemplate.getForObject(
-//					"http://hydra-user-service/api/v2/users/byid/" + result.getCurriculumCreator(), BamUser.class);
-//			BamUser modifier = restTemplate.getForObject(
-//					"http://hydra-user-service/api/v2/users/byid/" + result.getCurriculumModifier(), BamUser.class);
-//			creator.setPwd("");
-//			this.restTemplate.postForEntity("http://hydra-user-service/api/v2/users/update", HttpMethod.POST,
-//					BamUser.class, creator);
-//			if (modifier != null) {
-//				modifier.setPwd("");
-//				this.restTemplate.postForEntity("http://hydra-user-service/api/v2/users/update", HttpMethod.POST,
-//						BamUser.class, modifier);
-//			}
 		} catch (NullPointerException e) {
 			throw new BadRequestException("Request Failed");
 		}
@@ -169,11 +154,10 @@ public class CurriculumController {
 
 		try {
 			c = curriculumService.getCuricullumById(cId);
+			c.setId(cId);
 		} catch (NullPointerException e) {
 			throw new BadRequestException("Request Failed");
 		}
-
-		c.setId(cId);
 
 		List<CurriculumSubtopic> result = curriculumSubtopicService.getCurriculumSubtopicForCurriculum(c);
 		if (result != null && !result.isEmpty()) {
@@ -337,23 +321,6 @@ public class CurriculumController {
 		curriculumService.save(c);
 	}
 
-	@SuppressWarnings("unchecked")
-	@GetMapping("batches")
-	public List<Batch> getBatches() throws NoContentException {
-		// ParameterizedTypeReference<List<Batch>> ptr = new
-		// ParameterizedTypeReference<List<Batch>>() {
-		// };
-		List<Batch> result = restTemplate.postForObject("http://hydra-batch-service/getBatchAll", null,
-				(Class<? extends List<Batch>>) List.class);
-		// List<Batch> result = (List<Batch>) this.restTemplate.exchange(
-		// "http://hydra-batch-service/getBatchAll", HttpMethod.POST, null, ptr);
-		if (result != null) {
-			return result;
-		} else {
-			throw new NoContentException("No Subtopics were found");
-		}
-	}
-
 	/**
 	 * @author Carter Taylor (1712-Steve), Stephen Negron (1801-Trevin), Rafael
 	 *         Sanchez (1801-Trevin)
@@ -368,8 +335,7 @@ public class CurriculumController {
 	@ResponseStatus(value = HttpStatus.RESET_CONTENT)
 	@GetMapping("syncbatch/{id}")
 	public void syncBatch(@PathVariable int id) throws NoContentException {
-		Batch currBatch = restTemplate.getForObject("http://hydra-batch-service/getBatchById/" + id,
-				Batch.class);
+		Batch currBatch = restTemplate.getForObject("http://hydra-batch-service/getBatchById/" + id, Batch.class);
 		String batchType = currBatch.getType().getName();
 		List<Curriculum> curriculumList = curriculumService.findAllCurriculumByNameAndIsMaster(batchType, 1);
 
@@ -415,25 +381,10 @@ public class CurriculumController {
 		map.put(5, subtopicListFriday);
 
 		// logic goes here to add to calendar
-		/*
-		 * ParameterizedTypeReference<List<Subtopic>> ptr = new
-		 * ParameterizedTypeReference<List<Subtopic>>() { }; // Request URL currently
-		 * not implemented ResponseEntity<List<Subtopic>> persistedSubtopics =
-		 * this.restTemplate
-		 * .exchange("http://hydra-topic-service/api/v2/Subtopic/AllByBatchId/" + id,
-		 * HttpMethod.GET, null, ptr); if (subtopicsResponseEntity.getBody().size() ==
-		 * 0) { // Request URL currently not implemented
-		 * this.restTemplate.postForEntity(
-		 * "http://hydra-batch-service/api/v2/Batches/addCurriculumSubTopicsToBatch/" +
-		 * id, HttpMethod.POST, List.class, subtopicList); } else { throw new
-		 * Exception("Batch already synced"); }
-		 */
 
 		List<Subtopic> persistedSubtopics = (List<Subtopic>) this.restTemplate
 				.postForEntity("http://hydra-topic-service/api/v2/subtopicService/mapCurriculumSubtopicsToSubtopics/"
 						+ currBatch.getId(), HttpMethod.POST, Map.class, map);
-		// List<Subtopic> persistedSubtopics =
-		// curriculumSubtopicService.mapCurriculumSubtopicsToSubtopics(map, currBatch);
 
 		if (persistedSubtopics.isEmpty()) {
 			throw new NoContentException("No subtopics were found");
