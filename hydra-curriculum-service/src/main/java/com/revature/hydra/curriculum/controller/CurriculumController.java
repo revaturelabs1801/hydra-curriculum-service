@@ -175,13 +175,12 @@ public class CurriculumController {
 	 *         HttpStatus.NO_CONTENT if list is empty
 	 * @throws NoContentException
 	 */
-	@SuppressWarnings("unchecked")
 	@GetMapping("topicpool")
 	public List<SubtopicName> getTopicPool() throws NoContentException {
 		ParameterizedTypeReference<List<SubtopicName>> ptr = new ParameterizedTypeReference<List<SubtopicName>>() {
 		};
-		List<SubtopicName> result = (List<SubtopicName>) this.restTemplate.exchange(
-				"http://hydra-topic-service/api/v2/subtopicService/getAllSubtopicNames", HttpMethod.GET, null, ptr);
+		List<SubtopicName> result = this.restTemplate.exchange(
+				"http://hydra-topic-service/api/v2/subtopicService/getAllSubtopicNames", HttpMethod.GET, null, ptr).getBody();
 		if (result != null) {
 			return result;
 		} else {
@@ -197,13 +196,12 @@ public class CurriculumController {
 	 *         list is empty
 	 * @throws NoContentException
 	 */
-	@SuppressWarnings("unchecked")
 	@GetMapping("subtopicpool")
 	public List<Subtopic> getSubtopicPool() throws NoContentException {
 		ParameterizedTypeReference<List<Subtopic>> ptr = new ParameterizedTypeReference<List<Subtopic>>() {
 		};
-		List<Subtopic> result = (List<Subtopic>) this.restTemplate.exchange(
-				"http://hydra-topic-service/api/v2/subtopicService/getAllSubtopics", HttpMethod.GET, null, ptr);
+		List<Subtopic> result = this.restTemplate.exchange(
+				"http://hydra-topic-service/api/v2/subtopicService/getAllSubtopics", HttpMethod.GET, null, ptr).getBody();
 		if (result != null) {
 			return result;
 		} else {
@@ -382,9 +380,9 @@ public class CurriculumController {
 
 		// logic goes here to add to calendar
 
-		List<Subtopic> persistedSubtopics = (List<Subtopic>) this.restTemplate
+		List<Subtopic> persistedSubtopics = this.restTemplate
 				.postForEntity("http://hydra-topic-service/api/v2/subtopicService/mapCurriculumSubtopicsToSubtopics/"
-						+ currBatch.getId(), HttpMethod.POST, Map.class, map);
+						+ currBatch.getId(), HttpMethod.POST, List.class, map).getBody();
 
 		if (persistedSubtopics.isEmpty()) {
 			throw new NoContentException("No subtopics were found");
