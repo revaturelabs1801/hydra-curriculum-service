@@ -35,31 +35,17 @@ public class CurriculumService {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Map<String, List> getAllCurriculum(List<BamUser> users) {
-		List<Curriculum> curriculumList = curriculumRepository.findAll();
-		// obfuscate password
-		for (Curriculum element : curriculumList) {
-			for (BamUser user : users) {
-				if (element.getCurriculumCreator() == user.getUserId()) {
-					user.setPwd("");
-				}
-				if (element.getCurriculumModifier() != null && element.getCurriculumModifier() == user.getUserId()) {
-					user.setPwd("");
-				}
-			}
-		}
+
+	public Map<String, List> getAllCurriculum(List<BamUser> users){
+		List<Curriculum> curriculumList =  curriculumRepository.findAll();
 		Map<String, List> curriculumUsers = new HashMap<>();
 		curriculumUsers.put("curriculumList", curriculumList);
 		curriculumUsers.put("users", users);
 		return curriculumUsers;
 	}
 
-	public Curriculum getCuricullumById(Integer id) {
-		// obfuscate password
+	public Curriculum getCuricullumById(Integer id){
 		Curriculum curriculum = curriculumRepository.findById(id);
-		// curriculum.getCurriculumCreator().setPwd("");
-		// if(curriculum.getCurriculumModifier() != null)
-		// curriculum.getCurriculumModifier().setPwd("");
 		return curriculum;
 	}
 
