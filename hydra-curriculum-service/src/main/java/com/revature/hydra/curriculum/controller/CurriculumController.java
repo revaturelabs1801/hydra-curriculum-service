@@ -1,6 +1,7 @@
 package com.revature.hydra.curriculum.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -94,6 +95,7 @@ public class CurriculumController {
 	 * @throws Exception
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@HystrixCommand(fallbackMethod = "getListOfCurriculum")
 	@GetMapping(value = "all")
 	public List<Curriculum> getAllCurriculum() throws NoContentException {
 		ParameterizedTypeReference<List<BamUser>> ptr = new ParameterizedTypeReference<List<BamUser>>() {
@@ -101,15 +103,16 @@ public class CurriculumController {
 		ResponseEntity<List<BamUser>> userResponseEntity = this.restTemplate.exchange("http://hydra-user-service/all",
 				HttpMethod.GET, null, ptr);
 		Map<String, List> lists = curriculumService.getAllCurriculum(userResponseEntity.getBody());
-//		for (BamUser user : (List<BamUser>) lists.get("users"))
-//			this.restTemplate.postForEntity("http://hydra-user-service/api/v2/users/update", HttpMethod.POST,
-//					BamUser.class, user);
 		if (lists.get("curriculumList") != null && !lists.get("curriculumList").isEmpty()) {
 			return lists.get("curriculumList");
 		} else {
 			// return new ResponseEntity<List<Curriculum>>(HttpStatus.NO_CONTENT);
 			throw new NoContentException("No Curriculums Found");
 		}
+	}
+	
+	public List<Curriculum> getListOfCurriculum() {
+		return new ArrayList<Curriculum>();
 	}
 
 	/**
@@ -122,23 +125,12 @@ public class CurriculumController {
 	 * @throws NoContentException
 	 */
 	@SuppressWarnings("unused")
+	@HystrixCommand(fallbackMethod = "getCurriculum")
 	@GetMapping(value = "getcurriculum/{cId}")
 	public Curriculum getCurriculumById(@PathVariable int cId) throws BadRequestException, NoContentException {
 		Curriculum result = new Curriculum();
 		try {
 			result = curriculumService.getCuricullumById(cId);
-//			BamUser creator = restTemplate.getForObject(
-//					"http://hydra-user-service/api/v2/users/byid/" + result.getCurriculumCreator(), BamUser.class);
-//			BamUser modifier = restTemplate.getForObject(
-//					"http://hydra-user-service/api/v2/users/byid/" + result.getCurriculumModifier(), BamUser.class);
-//			creator.setPwd("");
-//			this.restTemplate.postForEntity("http://hydra-user-service/api/v2/users/update", HttpMethod.POST,
-//					BamUser.class, creator);
-//			if (modifier != null) {
-//				modifier.setPwd("");
-//				this.restTemplate.postForEntity("http://hydra-user-service/api/v2/users/update", HttpMethod.POST,
-//						BamUser.class, modifier);
-//			}
 		} catch (NullPointerException e) {
 			throw new BadRequestException("Request Failed");
 		}
@@ -148,6 +140,10 @@ public class CurriculumController {
 		} else {
 			throw new NoContentException("Curriculum by id: " + cId + " was not found");
 		}
+	}
+	
+	public Curriculum getCurriculum() {
+		return new Curriculum();
 	}
 
 	/**
@@ -162,6 +158,7 @@ public class CurriculumController {
 	 * @throws BadRequestException
 	 * @throws NoContentException
 	 */
+	@HystrixCommand(fallbackMethod = "getCurriculumSubtopics")
 	@GetMapping(value = "schedule/{cId}")
 	public List<CurriculumSubtopic> getAllCurriculumSchedules(@PathVariable int cId)
 			throws BadRequestException, NoContentException {
@@ -169,11 +166,10 @@ public class CurriculumController {
 
 		try {
 			c = curriculumService.getCuricullumById(cId);
+			c.setId(cId);
 		} catch (NullPointerException e) {
 			throw new BadRequestException("Request Failed");
 		}
-
-		c.setId(cId);
 
 		List<CurriculumSubtopic> result = curriculumSubtopicService.getCurriculumSubtopicForCurriculum(c);
 		if (result != null && !result.isEmpty()) {
@@ -181,6 +177,10 @@ public class CurriculumController {
 		} else {
 			throw new NoContentException("No schedules by Curriculum Id: " + cId + " were found");
 		}
+	}
+	
+	public List<CurriculumSubtopic> getCurriculumSubtopics() {
+		return new ArrayList<CurriculumSubtopic>();
 	}
 
 	/**
@@ -191,18 +191,22 @@ public class CurriculumController {
 	 *         HttpStatus.NO_CONTENT if list is empty
 	 * @throws NoContentException
 	 */
-	@SuppressWarnings("unchecked")
+	@HystrixCommand(fallbackMethod = "getSubtopicNames")
 	@GetMapping("topicpool")
 	public List<SubtopicName> getTopicPool() throws NoContentException {
 		ParameterizedTypeReference<List<SubtopicName>> ptr = new ParameterizedTypeReference<List<SubtopicName>>() {
 		};
-		List<SubtopicName> result = (List<SubtopicName>) this.restTemplate.exchange(
-				"http://hydra-topic-service/api/v2/subtopicService/getAllSubtopicNames", HttpMethod.GET, null, ptr);
+		List<SubtopicName> result = this.restTemplate.exchange(
+				"http://hydra-topic-service/api/v2/subtopicService/getAllSubtopicNames", HttpMethod.GET, null, ptr).getBody();
 		if (result != null) {
 			return result;
 		} else {
 			throw new NoContentException("No SubtopicNames were found");
 		}
+	}
+	
+	public List<SubtopicName> getSubtopicNames() {
+		return new ArrayList<SubtopicName>();
 	}
 
 	/**
@@ -213,18 +217,22 @@ public class CurriculumController {
 	 *         list is empty
 	 * @throws NoContentException
 	 */
-	@SuppressWarnings("unchecked")
+	@HystrixCommand(fallbackMethod = "getSubtopics")
 	@GetMapping("subtopicpool")
 	public List<Subtopic> getSubtopicPool() throws NoContentException {
 		ParameterizedTypeReference<List<Subtopic>> ptr = new ParameterizedTypeReference<List<Subtopic>>() {
 		};
-		List<Subtopic> result = (List<Subtopic>) this.restTemplate.exchange(
-				"http://hydra-topic-service/api/v2/subtopicService/getAllSubtopics", HttpMethod.GET, null, ptr);
+		List<Subtopic> result = this.restTemplate.exchange(
+				"http://hydra-topic-service/api/v2/subtopicService/getAllSubtopics", HttpMethod.GET, null, ptr).getBody();
 		if (result != null) {
 			return result;
 		} else {
 			throw new NoContentException("No Subtopics were found");
 		}
+	}
+	
+	public List<Subtopic> getSubtopics() {
+		return new ArrayList<Subtopic>();
 	}
 
 	/**
@@ -240,6 +248,7 @@ public class CurriculumController {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
+	@HystrixCommand(fallbackMethod = "getCurriculum")
 	@PostMapping(value = "addcurriculum")
 	public Curriculum addSchedule(@RequestBody String json) throws JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
@@ -301,6 +310,7 @@ public class CurriculumController {
 	 *         successful
 	 * @throws BadRequestException
 	 */
+	@HystrixCommand(fallbackMethod = "emptyMethod")
 	@ResponseStatus(value = HttpStatus.OK)
 	@GetMapping(value = "makemaster/{cId}")
 	public void markCurriculumAsMaster(@PathVariable int cId) throws BadRequestException {
@@ -336,22 +346,9 @@ public class CurriculumController {
 		c.setIsMaster(1);
 		curriculumService.save(c);
 	}
-
-	@SuppressWarnings("unchecked")
-	@GetMapping("batches")
-	public List<Batch> getBatches() throws NoContentException {
-		// ParameterizedTypeReference<List<Batch>> ptr = new
-		// ParameterizedTypeReference<List<Batch>>() {
-		// };
-		List<Batch> result = restTemplate.postForObject("http://hydra-batch-service/getBatchAll", null,
-				(Class<? extends List<Batch>>) List.class);
-		// List<Batch> result = (List<Batch>) this.restTemplate.exchange(
-		// "http://hydra-batch-service/getBatchAll", HttpMethod.POST, null, ptr);
-		if (result != null) {
-			return result;
-		} else {
-			throw new NoContentException("No Subtopics were found");
-		}
+	
+	public void emptyMethod() {
+		
 	}
 
 	/**
@@ -365,11 +362,11 @@ public class CurriculumController {
 	 * @throws CustomException
 	 */
 	@SuppressWarnings("unchecked")
+	@HystrixCommand(fallbackMethod = "emptyMethod")
 	@ResponseStatus(value = HttpStatus.RESET_CONTENT)
 	@GetMapping("syncbatch/{id}")
 	public void syncBatch(@PathVariable int id) throws NoContentException {
-		Batch currBatch = restTemplate.getForObject("http://hydra-batch-service/getBatchById/" + id,
-				Batch.class);
+		Batch currBatch = restTemplate.getForObject("http://hydra-batch-service/getBatchById/" + id, Batch.class);
 		String batchType = currBatch.getType().getName();
 		List<Curriculum> curriculumList = curriculumService.findAllCurriculumByNameAndIsMaster(batchType, 1);
 
@@ -415,25 +412,10 @@ public class CurriculumController {
 		map.put(5, subtopicListFriday);
 
 		// logic goes here to add to calendar
-		/*
-		 * ParameterizedTypeReference<List<Subtopic>> ptr = new
-		 * ParameterizedTypeReference<List<Subtopic>>() { }; // Request URL currently
-		 * not implemented ResponseEntity<List<Subtopic>> persistedSubtopics =
-		 * this.restTemplate
-		 * .exchange("http://hydra-topic-service/api/v2/Subtopic/AllByBatchId/" + id,
-		 * HttpMethod.GET, null, ptr); if (subtopicsResponseEntity.getBody().size() ==
-		 * 0) { // Request URL currently not implemented
-		 * this.restTemplate.postForEntity(
-		 * "http://hydra-batch-service/api/v2/Batches/addCurriculumSubTopicsToBatch/" +
-		 * id, HttpMethod.POST, List.class, subtopicList); } else { throw new
-		 * Exception("Batch already synced"); }
-		 */
 
-		List<Subtopic> persistedSubtopics = (List<Subtopic>) this.restTemplate
+		List<Subtopic> persistedSubtopics = this.restTemplate
 				.postForEntity("http://hydra-topic-service/api/v2/subtopicService/mapCurriculumSubtopicsToSubtopics/"
-						+ currBatch.getId(), HttpMethod.POST, Map.class, map);
-		// List<Subtopic> persistedSubtopics =
-		// curriculumSubtopicService.mapCurriculumSubtopicsToSubtopics(map, currBatch);
+						+ currBatch.getId(), HttpMethod.POST, List.class, map).getBody();
 
 		if (persistedSubtopics.isEmpty()) {
 			throw new NoContentException("No subtopics were found");
@@ -448,6 +430,7 @@ public class CurriculumController {
 	 *            version along with it's related CurriculumSubtopics
 	 * @return HttpStatus.OK if successful
 	 */
+	@HystrixCommand(fallbackMethod = "emptyMethod")
 	@ResponseStatus(value = HttpStatus.OK)
 	@PostMapping("deleteversion")
 	public void deleteCurriculumVersion(@RequestBody Curriculum version) {
