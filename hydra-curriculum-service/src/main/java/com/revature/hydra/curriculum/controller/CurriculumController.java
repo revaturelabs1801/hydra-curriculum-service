@@ -1,6 +1,7 @@
 package com.revature.hydra.curriculum.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -94,6 +95,7 @@ public class CurriculumController {
 	 * @throws Exception
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@HystrixCommand(fallbackMethod = "getListOfCurriculum")
 	@GetMapping(value = "all")
 	public List<Curriculum> getAllCurriculum() throws NoContentException {
 		ParameterizedTypeReference<List<BamUser>> ptr = new ParameterizedTypeReference<List<BamUser>>() {
@@ -108,6 +110,10 @@ public class CurriculumController {
 			throw new NoContentException("No Curriculums Found");
 		}
 	}
+	
+	public List<Curriculum> getListOfCurriculum() {
+		return new ArrayList<Curriculum>();
+	}
 
 	/**
 	 * @author Carter Taylor (1712-Steve), Olayinka Ewumi (1712-Steve), Stephen
@@ -119,6 +125,7 @@ public class CurriculumController {
 	 * @throws NoContentException
 	 */
 	@SuppressWarnings("unused")
+	@HystrixCommand(fallbackMethod = "getCurriculum")
 	@GetMapping(value = "getcurriculum/{cId}")
 	public Curriculum getCurriculumById(@PathVariable int cId) throws BadRequestException, NoContentException {
 		Curriculum result = new Curriculum();
@@ -134,6 +141,10 @@ public class CurriculumController {
 			throw new NoContentException("Curriculum by id: " + cId + " was not found");
 		}
 	}
+	
+	public Curriculum getCurriculum() {
+		return new Curriculum();
+	}
 
 	/**
 	 * @author Carter Taylor (1712-Steve), Olayinka Ewumi (1712-Steve), Stephen
@@ -147,6 +158,7 @@ public class CurriculumController {
 	 * @throws BadRequestException
 	 * @throws NoContentException
 	 */
+	@HystrixCommand(fallbackMethod = "getCurriculumSubtopics")
 	@GetMapping(value = "schedule/{cId}")
 	public List<CurriculumSubtopic> getAllCurriculumSchedules(@PathVariable int cId)
 			throws BadRequestException, NoContentException {
@@ -166,6 +178,10 @@ public class CurriculumController {
 			throw new NoContentException("No schedules by Curriculum Id: " + cId + " were found");
 		}
 	}
+	
+	public List<CurriculumSubtopic> getCurriculumSubtopics() {
+		return new ArrayList<CurriculumSubtopic>();
+	}
 
 	/**
 	 * @author Carter Taylor (1712-Steve), Olayinka Ewumi (1712-Steve), Stephen
@@ -175,6 +191,7 @@ public class CurriculumController {
 	 *         HttpStatus.NO_CONTENT if list is empty
 	 * @throws NoContentException
 	 */
+	@HystrixCommand(fallbackMethod = "getSubtopicNames")
 	@GetMapping("topicpool")
 	public List<SubtopicName> getTopicPool() throws NoContentException {
 		ParameterizedTypeReference<List<SubtopicName>> ptr = new ParameterizedTypeReference<List<SubtopicName>>() {
@@ -187,6 +204,10 @@ public class CurriculumController {
 			throw new NoContentException("No SubtopicNames were found");
 		}
 	}
+	
+	public List<SubtopicName> getSubtopicNames() {
+		return new ArrayList<SubtopicName>();
+	}
 
 	/**
 	 * @author Carter Taylor (1712-Steve), Olayinka Ewumi (1712-Steve), Stephen
@@ -196,6 +217,7 @@ public class CurriculumController {
 	 *         list is empty
 	 * @throws NoContentException
 	 */
+	@HystrixCommand(fallbackMethod = "getSubtopics")
 	@GetMapping("subtopicpool")
 	public List<Subtopic> getSubtopicPool() throws NoContentException {
 		ParameterizedTypeReference<List<Subtopic>> ptr = new ParameterizedTypeReference<List<Subtopic>>() {
@@ -207,6 +229,10 @@ public class CurriculumController {
 		} else {
 			throw new NoContentException("No Subtopics were found");
 		}
+	}
+	
+	public List<Subtopic> getSubtopics() {
+		return new ArrayList<Subtopic>();
 	}
 
 	/**
@@ -222,6 +248,7 @@ public class CurriculumController {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
+	@HystrixCommand(fallbackMethod = "getCurriculum")
 	@PostMapping(value = "addcurriculum")
 	public Curriculum addSchedule(@RequestBody String json) throws JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
@@ -283,6 +310,7 @@ public class CurriculumController {
 	 *         successful
 	 * @throws BadRequestException
 	 */
+	@HystrixCommand(fallbackMethod = "emptyMethod")
 	@ResponseStatus(value = HttpStatus.OK)
 	@GetMapping(value = "makemaster/{cId}")
 	public void markCurriculumAsMaster(@PathVariable int cId) throws BadRequestException {
@@ -318,6 +346,10 @@ public class CurriculumController {
 		c.setIsMaster(1);
 		curriculumService.save(c);
 	}
+	
+	public void emptyMethod() {
+		
+	}
 
 	/**
 	 * @author Carter Taylor (1712-Steve), Stephen Negron (1801-Trevin), Rafael
@@ -330,6 +362,7 @@ public class CurriculumController {
 	 * @throws CustomException
 	 */
 	@SuppressWarnings("unchecked")
+	@HystrixCommand(fallbackMethod = "emptyMethod")
 	@ResponseStatus(value = HttpStatus.RESET_CONTENT)
 	@GetMapping("syncbatch/{id}")
 	public void syncBatch(@PathVariable int id) throws NoContentException {
@@ -397,6 +430,7 @@ public class CurriculumController {
 	 *            version along with it's related CurriculumSubtopics
 	 * @return HttpStatus.OK if successful
 	 */
+	@HystrixCommand(fallbackMethod = "emptyMethod")
 	@ResponseStatus(value = HttpStatus.OK)
 	@PostMapping("deleteversion")
 	public void deleteCurriculumVersion(@RequestBody Curriculum version) {
