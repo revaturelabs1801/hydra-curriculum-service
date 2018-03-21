@@ -36,12 +36,9 @@ public class CurriculumService {
 
 	@SuppressWarnings("rawtypes")
 
-	public Map<String, List> getAllCurriculum(List<BamUser> users){
-		List<Curriculum> curriculumList =  curriculumRepository.findAll();
-		Map<String, List> curriculumUsers = new HashMap<>();
-		curriculumUsers.put("curriculumList", curriculumList);
-		curriculumUsers.put("users", users);
-		return curriculumUsers;
+public List<Curriculum> getAllCurriculum(){
+		List<Curriculum> curriculumList = curriculumRepository.findAll();
+		return curriculumList;
 	}
 
 	public Curriculum getCuricullumById(Integer id){
