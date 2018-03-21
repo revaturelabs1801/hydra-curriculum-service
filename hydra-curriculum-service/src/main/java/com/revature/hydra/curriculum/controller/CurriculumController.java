@@ -94,7 +94,6 @@ public class CurriculumController {
 	 *         if list is empty
 	 * @throws Exception
 	 */
-	@HystrixCommand(fallbackMethod = "getListOfCurriculum")
 	@GetMapping(value = "all")
 	public List<Curriculum> getAllCurriculum() throws NoContentException {
 		List<Curriculum> curriculums = curriculumService.getAllCurriculum();
@@ -104,10 +103,6 @@ public class CurriculumController {
 			// return new ResponseEntity<List<Curriculum>>(HttpStatus.NO_CONTENT);
 			throw new NoContentException("No Curriculums Found");
 		}
-	}
-	
-	public List<Curriculum> getListOfCurriculum() {
-		return new ArrayList<Curriculum>();
 	}
 
 	/**
