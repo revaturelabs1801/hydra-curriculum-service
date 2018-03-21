@@ -94,17 +94,12 @@ public class CurriculumController {
 	 *         if list is empty
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@HystrixCommand(fallbackMethod = "getListOfCurriculum")
 	@GetMapping(value = "all")
 	public List<Curriculum> getAllCurriculum() throws NoContentException {
-		ParameterizedTypeReference<List<BamUser>> ptr = new ParameterizedTypeReference<List<BamUser>>() {
-		};
-		ResponseEntity<List<BamUser>> userResponseEntity = this.restTemplate.exchange("http://hydra-user-service/all",
-				HttpMethod.GET, null, ptr);
-		Map<String, List> lists = curriculumService.getAllCurriculum(userResponseEntity.getBody());
-		if (lists.get("curriculumList") != null && !lists.get("curriculumList").isEmpty()) {
-			return lists.get("curriculumList");
+		List<Curriculum> curriculums = curriculumService.getAllCurriculum();
+		if (curriculums != null && !curriculums.isEmpty()) {
+			return curriculums;
 		} else {
 			// return new ResponseEntity<List<Curriculum>>(HttpStatus.NO_CONTENT);
 			throw new NoContentException("No Curriculums Found");

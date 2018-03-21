@@ -44,10 +44,9 @@ public class InternalCurriculumController {
 		return curriculumService.findAllCurriculumByNameAndIsMaster(name, isMaster);
 	}
 	
-	@SuppressWarnings("rawtypes")
 	@PostMapping("getAllCurriculum")
-	public Map<String, List> getAllCurriculum(@RequestBody List<BamUser> users){
-		return curriculumService.getAllCurriculum(users);
+	public List<Curriculum> getAllCurriculum(){
+		return curriculumService.getAllCurriculum();
 	}
 	
 	@PostMapping("getCuricullumById/{id}")
