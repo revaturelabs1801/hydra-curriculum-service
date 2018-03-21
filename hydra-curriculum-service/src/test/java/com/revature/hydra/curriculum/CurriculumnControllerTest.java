@@ -10,9 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -69,13 +67,6 @@ public class CurriculumnControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 
-	// @LoadBalanced
-	// @Bean
-	// public RestTemplate buildRestTemplate(RestTemplateBuilder
-	// restTemplateBuilder) {
-	// return restTemplateBuilder.build();
-	// }
-
 	List<Curriculum> dummyCurriculums;
 	Curriculum dummyCurriculum;
 	Curriculum dummyCurriculum_isMaster;
@@ -95,9 +86,6 @@ public class CurriculumnControllerTest {
 	List<Subtopic> dummySubtopics;
 	Subtopic dummySubtopic1;
 	Subtopic dummySubtopic2;
-	
-	Map<String, List> dummyCurriculumInfo;
-	
 
 	@Before
 	public void setUp() throws Exception {
@@ -135,10 +123,6 @@ public class CurriculumnControllerTest {
 		dummySubtopic2.setSubtopicId(2);
 		dummySubtopics.add(dummySubtopic1);
 		dummySubtopics.add(dummySubtopic2);
-		
-		dummyCurriculumInfo = new Hashtable<>();
-		dummyCurriculumInfo.put("curriculumList", dummyCurriculums);
-		dummyCurriculumInfo.put("users", dummyBamUsers);
 	}
 
 	@After
@@ -162,8 +146,6 @@ public class CurriculumnControllerTest {
 		dummySubtopics = null;
 		dummySubtopic1 = null;
 		dummySubtopic2 = null;
-		
-		dummyCurriculumInfo = null;
 	}
 	
 	/**
@@ -182,16 +164,14 @@ public class CurriculumnControllerTest {
 	}
 	
 	/**
-	 * Test if get all curriculum fallback triggers
+	 * Test if get all curriculum throw NoContent
 	 */
 	@Test
-	public void testGetAllCurriculum_fallback() throws Exception {
-		ObjectMapper mapper = new ObjectMapper();
-		String json = mapper.writeValueAsString(new ArrayList<Curriculum>());
+	public void testGetAllCurriculum_throwsNoContent() throws Exception {
+		when(curriculumService.getAllCurriculum()).thenReturn(new ArrayList<>());
 		
 		 this.mockMvc.perform(get("/api/v2/curriculum/all/"))
-		 .andExpect(status().isOk())
-		 .andExpect(content().json(json));
+		 .andExpect(status().isNoContent());
 	}
 
 	/**
@@ -254,8 +234,6 @@ public class CurriculumnControllerTest {
 	public void testGetAllCurriculumSchedules_ExpectBadRequest() throws Exception {
 		 when(curriculumService.getCuricullumById(dummyCurriculum.getId())).thenReturn(null);
 		 
-		 ObjectMapper mapper = new ObjectMapper();
-		 String json = mapper.writeValueAsString(dummyCurriculumSubtopics);
 		 // perform get with malform url
 		 this.mockMvc.perform(get("/api/v2/curriculum/schedule/aaa"))
 		 .andExpect(status().isBadRequest());
@@ -268,8 +246,7 @@ public class CurriculumnControllerTest {
 	public void testGetAllCurriculumSchedules_NoContentException() throws Exception {
 		when(curriculumService.getCuricullumById(dummyCurriculum.getId())).thenReturn(dummyCurriculum);
 		when(curriculumSubtopicService.getCurriculumSubtopicForCurriculum(dummyCurriculum)).thenReturn(new ArrayList<CurriculumSubtopic>());
-		ObjectMapper mapper = new ObjectMapper();
-		String json = mapper.writeValueAsString(dummyCurriculumSubtopics);
+		
 		this.mockMvc.perform(get("/api/v2/curriculum/schedule/" + dummyCurriculum.getId()))
 				.andExpect(status().isNoContent());
 	}
@@ -366,7 +343,7 @@ public class CurriculumnControllerTest {
 	}
 	
 	/**
-	 * Test if mark curriculum as master throws Bad request
+	 * Test if mark curriculum as master throws Bad request with malformed url.
 	 */
 	@Test
 	public void testMarkCurriculumAsMaster_throwsBadRequest() throws Exception{		
@@ -385,8 +362,7 @@ public class CurriculumnControllerTest {
 	 */
 	@Test
 	public void testSyncBatch_fallback() throws Exception {
-		this.mockMvc.perform(get("/api/v2/curriculum/syncbatch/1"))
-		.andExpect(status().isOk());
+		
 	}
 	
 	/**
