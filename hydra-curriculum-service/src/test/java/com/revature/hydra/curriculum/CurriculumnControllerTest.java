@@ -171,11 +171,7 @@ public class CurriculumnControllerTest {
 	 */
 	@Test
 	public void testGetAllCurriculum_returnsOk() throws Exception {
-		ParameterizedTypeReference<List<BamUser>> ptr = new ParameterizedTypeReference<List<BamUser>>() {
-		};
-		when(restTemplate.exchange("http://hydra-user-service/all", HttpMethod.GET, null, ptr))
-		.thenReturn(new ResponseEntity<>(dummyBamUsers, HttpStatus.OK));
-		when(curriculumService.getAllCurriculum(dummyBamUsers)).thenReturn(dummyCurriculumInfo);
+		when(curriculumService.getAllCurriculum()).thenReturn(dummyCurriculums);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		String json = mapper.writeValueAsString(dummyCurriculums);
