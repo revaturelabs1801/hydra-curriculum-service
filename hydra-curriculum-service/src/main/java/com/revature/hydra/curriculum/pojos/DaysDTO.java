@@ -4,18 +4,18 @@ import java.util.Arrays;
 
 public class DaysDTO {
 
-	private SubtopicName[] subtopics;
+	private Integer[] subtopics;
 	
 	public DaysDTO(){
 		//Empty because of No Args
 		
 	}
 
-	public SubtopicName[] getSubtopics() {
+	public Integer[] getSubtopics() {
 		return subtopics;
 	}
 
-	public void setSubtopics(SubtopicName[] subtopics) {
+	public void setSubtopics(Integer[] subtopics) {
 		this.subtopics = subtopics;
 	}
 
