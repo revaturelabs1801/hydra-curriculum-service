@@ -273,11 +273,11 @@ public class CurriculumController {
 		for (int i = 0; i < numWeeks; i++) {
 			DaysDTO[] days = c.getWeeks()[i].getDays();
 			for (int j = 0; j < days.length; j++) {
-				SubtopicName[] subtopic = days[j].getSubtopics();
+				Integer[] subtopic = days[j].getSubtopics();
 				for (int k = 0; k < subtopic.length; k++) {
 					CurriculumSubtopic cs = new CurriculumSubtopic();
 					cs.setCurriculum(curriculum);
-					cs.setCurriculumSubtopicNameId(subtopic[k].getId());
+					cs.setCurriculumSubtopicNameId(subtopic[k]);
 					cs.setCurriculumSubtopicWeek(i + 1);
 					cs.setCurriculumSubtopicDay(j + 1);
 					curriculumSubtopicService.saveCurriculumSubtopic(cs);
