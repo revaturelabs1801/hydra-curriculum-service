@@ -1,8 +1,6 @@
 package com.revature.hydra.curriculum;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,7 +10,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -33,15 +33,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.hydra.curriculum.bean.Curriculum;
 import com.revature.hydra.curriculum.bean.CurriculumSubtopic;
 import com.revature.hydra.curriculum.controller.CurriculumController;
-import com.revature.hydra.curriculum.pojos.BadRequestException;
 import com.revature.hydra.curriculum.pojos.BamUser;
-import com.revature.hydra.curriculum.pojos.CurriculumSubtopicDTO;
-import com.revature.hydra.curriculum.pojos.NoContentException;
 import com.revature.hydra.curriculum.pojos.Subtopic;
 import com.revature.hydra.curriculum.pojos.SubtopicName;
 import com.revature.hydra.curriculum.pojos.SubtopicType;
@@ -100,6 +96,8 @@ public class CurriculumnControllerTest {
 	Subtopic dummySubtopic1;
 	Subtopic dummySubtopic2;
 	
+	Map<String, List> dummyCurriculumInfo;
+	
 
 	@Before
 	public void setUp() throws Exception {
@@ -137,6 +135,10 @@ public class CurriculumnControllerTest {
 		dummySubtopic2.setSubtopicId(2);
 		dummySubtopics.add(dummySubtopic1);
 		dummySubtopics.add(dummySubtopic2);
+		
+		dummyCurriculumInfo = new Hashtable<>();
+		dummyCurriculumInfo.put("curriculumList", dummyCurriculums);
+		dummyCurriculumInfo.put("users", dummyBamUsers);
 	}
 
 	@After
@@ -160,15 +162,40 @@ public class CurriculumnControllerTest {
 		dummySubtopics = null;
 		dummySubtopic1 = null;
 		dummySubtopic2 = null;
+		
+		dummyCurriculumInfo = null;
 	}
 	
-	
+	/**
+	 * Test if get all curriculum returns ok
+	 */
 	@Test
-	public void testGetAllCurriculum() {
+	public void testGetAllCurriculum_returnsOk() throws Exception {
 		ParameterizedTypeReference<List<BamUser>> ptr = new ParameterizedTypeReference<List<BamUser>>() {
 		};
-		when(restTemplate.exchange("http://hydra-topic-service/api/v2/subtopicService/getAllSubtopicNames", HttpMethod.GET, null, ptr))
+		when(restTemplate.exchange("http://hydra-user-service/all", HttpMethod.GET, null, ptr))
 		.thenReturn(new ResponseEntity<>(dummyBamUsers, HttpStatus.OK));
+		when(curriculumService.getAllCurriculum(dummyBamUsers)).thenReturn(dummyCurriculumInfo);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String json = mapper.writeValueAsString(dummyCurriculums);
+		
+		 this.mockMvc.perform(get("/api/v2/curriculum/all/"))
+		 .andExpect(status().isOk())
+		 .andExpect(content().json(json));
+	}
+	
+	/**
+	 * Test if get all curriculum fallback triggers
+	 */
+	@Test
+	public void testGetAllCurriculum_fallback() throws Exception {
+		ObjectMapper mapper = new ObjectMapper();
+		String json = mapper.writeValueAsString(new ArrayList<Curriculum>());
+		
+		 this.mockMvc.perform(get("/api/v2/curriculum/all/"))
+		 .andExpect(status().isOk())
+		 .andExpect(content().json(json));
 	}
 
 	/**
@@ -271,16 +298,18 @@ public class CurriculumnControllerTest {
 		.andExpect(content().json(json));
 	}
 	
+	/**
+	 * Test if get topic pool fallback triggers
+	 */
 	@Test
-	public void testGetTopicPool_throwsNoContent() throws Exception {
-		ParameterizedTypeReference<List<SubtopicName>> ptr = new ParameterizedTypeReference<List<SubtopicName>>() {
-		};
-		
-		when(restTemplate.exchange("http://hydra-topic-service/api/v2/subtopicService/getAllSubtopicNames", HttpMethod.GET, null, ptr))
-		.thenReturn(new ResponseEntity<List<SubtopicName>>(new ArrayList<>(), HttpStatus.OK));
+	public void testGetTopicPool_fallback() throws Exception {
+		List<SubtopicName> fallbackList = new ArrayList<SubtopicName>();
+		ObjectMapper mapper = new ObjectMapper();
+		String json = mapper.writeValueAsString(fallbackList);
 		
 		this.mockMvc.perform(get("/api/v2/curriculum/topicpool/"))
-		.andExpect(status().isNoContent());
+		.andExpect(status().isOk())
+		.andExpect(content().json(json));
 	}
 
 
@@ -303,22 +332,23 @@ public class CurriculumnControllerTest {
 		.andExpect(content().json(json));
 	}
 	
-	
+	/**
+	 * Test if get subtopic pool fallback triggers
+	 */
 	@Test
-	public void testGetSubtopicPool_throwsNoContent() throws Exception {
-		ParameterizedTypeReference<List<Subtopic>> ptr = new ParameterizedTypeReference<List<Subtopic>>() {
-		};
-		
-		when(this.restTemplate.exchange("http://hydra-topic-service/api/v2/subtopicService/getAllSubtopics", HttpMethod.GET, null, ptr))
-		.thenReturn(new ResponseEntity<List<Subtopic>>(new ArrayList<Subtopic>(), HttpStatus.OK));
+	public void testGetSubtopicPool_fallback() throws Exception {		
+		List<Subtopic> fallbackList = new ArrayList<Subtopic>();
+		ObjectMapper mapper = new ObjectMapper();
+		String json = mapper.writeValueAsString(fallbackList);
 		
 		this.mockMvc.perform(get("/api/v2/curriculum/subtopicpool/"))
-		.andExpect(status().isNoContent());
+		.andExpect(status().isOk())
+		.andExpect(content().json(json));
 	}
 
 	@Test
 	public void testAddSchedule() {
-		CurriculumSubtopicDTO c;
+		
 	}
 
 	/**
@@ -343,16 +373,24 @@ public class CurriculumnControllerTest {
 	 * Test if mark curriculum as master throws Bad request
 	 */
 	@Test
-	public void testMarkCurriculumAsMaster_throwsBadRequest() throws Exception{
-//		when(curriculumService.getCuricullumByIdKeepPwd(dummyCurriculum.getId())).thenReturn(null);
-		
+	public void testMarkCurriculumAsMaster_throwsBadRequest() throws Exception{		
 		this.mockMvc.perform(get("/api/v2/curriculum/makemaster/aaa"))
 		.andExpect(status().isBadRequest());
 	}
 
+	
 	@Test
 	public void testSyncBatch() {
 		
+	}
+	
+	/**
+	 * Test if sync batch fallback triggers 
+	 */
+	@Test
+	public void testSyncBatch_fallback() throws Exception {
+		this.mockMvc.perform(get("/api/v2/curriculum/syncbatch/1"))
+		.andExpect(status().isOk());
 	}
 	
 	/**
