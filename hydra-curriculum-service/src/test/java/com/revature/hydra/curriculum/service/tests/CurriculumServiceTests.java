@@ -37,17 +37,22 @@ public class CurriculumServiceTests {
 	@Test
 	public void getAllCurriculum_returnsUsersArgument() {
 		// SETUP
-		BamUser user1 = new BamUser(1, null, null, null, null, null, null, null, null, null, null, null);
-		BamUser user2 = new BamUser(2, null, null, null, null, null, null, null, null, null, null, null);
-		List<BamUser> argumentList = new ArrayList<>();
-		argumentList.add(user1);
-		argumentList.add(user2);
+		List<Curriculum> curriculums = new ArrayList<>();
+		Curriculum c1 = new Curriculum();
+		Curriculum c2 = new Curriculum();
+		c1.setId(1);
+		c1.setId(2);
+		
+		curriculums.add(c1);
+		curriculums.add(c2);
+		
+		when(mockCurriculumRepository.findAll()).thenReturn(curriculums);
 
 		// EXECUTE
-		Map<String, List> curriculumUsers = curriculumService.getAllCurriculum(argumentList);
+		List<Curriculum> curriculumUsers = curriculumService.getAllCurriculum();
 		
 		// TEST
-		assertEquals(curriculumUsers.get("users").size(), argumentList.size());
+		assertEquals(2, curriculumUsers.size());
 	}
 	
 	@Test
