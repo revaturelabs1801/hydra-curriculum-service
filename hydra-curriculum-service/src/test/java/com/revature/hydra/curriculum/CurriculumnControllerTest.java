@@ -1,6 +1,7 @@
 package com.revature.hydra.curriculum;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +37,7 @@ import com.revature.hydra.curriculum.bean.Curriculum;
 import com.revature.hydra.curriculum.bean.CurriculumSubtopic;
 import com.revature.hydra.curriculum.controller.CurriculumController;
 import com.revature.hydra.curriculum.pojos.BamUser;
+import com.revature.hydra.curriculum.pojos.Batch;
 import com.revature.hydra.curriculum.pojos.Subtopic;
 import com.revature.hydra.curriculum.pojos.SubtopicName;
 import com.revature.hydra.curriculum.pojos.SubtopicType;
@@ -321,7 +323,8 @@ public class CurriculumnControllerTest {
 
 	@Test
 	public void testAddSchedule() {
-		
+		// TODO
+		fail("Not yet implemented");
 	}
 
 	/**
@@ -354,7 +357,8 @@ public class CurriculumnControllerTest {
 	
 	@Test
 	public void testSyncBatch() {
-		
+		// TODO
+		fail("Not yet implemented");
 	}
 	
 	/**
@@ -362,7 +366,12 @@ public class CurriculumnControllerTest {
 	 */
 	@Test
 	public void testSyncBatch_fallback() throws Exception {
+		// TODO currently giving FallbackDefinitionException: fallback method wasn't found: emptyMethod([int]
+		Batch dummyBatch = new Batch();
+		dummyBatch.setId(1);
 		
+		this.mockMvc.perform(get("/api/v2/curriculum/syncbatch/" + dummyBatch.getId()))
+		.andExpect(status().isNoContent());
 	}
 	
 	/**
